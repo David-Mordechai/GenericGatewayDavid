@@ -7,6 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.Core", "Demo.Core\Demo.Core.csproj", "{937B55F3-719E-4FD8-B2B0-9C4AC4A42B7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.Infrastructure", "Demo.Infrastructure\Demo.Infrastructure.csproj", "{087C5A42-7D86-4D5C-AEE5-6833069A0182}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AeroCodeGenProtocols", "AeroCodeGenProtocols\AeroCodeGenProtocols.csproj", "{6676BDEE-FCAA-42D4-B14A-7E0B0D1E522F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F0C67661-3F36-4F07-8E2C-1E53B0109685}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +30,14 @@ Global
 		{937B55F3-719E-4FD8-B2B0-9C4AC4A42B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{937B55F3-719E-4FD8-B2B0-9C4AC4A42B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{937B55F3-719E-4FD8-B2B0-9C4AC4A42B7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{087C5A42-7D86-4D5C-AEE5-6833069A0182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{087C5A42-7D86-4D5C-AEE5-6833069A0182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{087C5A42-7D86-4D5C-AEE5-6833069A0182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{087C5A42-7D86-4D5C-AEE5-6833069A0182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6676BDEE-FCAA-42D4-B14A-7E0B0D1E522F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6676BDEE-FCAA-42D4-B14A-7E0B0D1E522F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6676BDEE-FCAA-42D4-B14A-7E0B0D1E522F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6676BDEE-FCAA-42D4-B14A-7E0B0D1E522F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

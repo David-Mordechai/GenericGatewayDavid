@@ -1,20 +1,24 @@
+using Demo.Core.Interfaces;
+
 namespace Demo;
 
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
+    private readonly IGatewayProcess _gatewayProcess;
 
-    public Worker(ILogger<Worker> logger)
+    public Worker(ILogger<Worker> logger, IGatewayProcess gatewayProcess)
     {
         _logger = logger;
+        _gatewayProcess = gatewayProcess;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            await Task.Delay(1000, stoppingToken);
-        }
+        _logger.LogInformation("Starting Gateway process.");
+
+        _gatewayProcess.Start(stoppingToken);
+        
+        return Task.CompletedTask;
     }
 }

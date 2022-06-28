@@ -1,4 +1,4 @@
-﻿namespace Demo.Core;
+﻿namespace Demo.Core.Interfaces;
 
 public interface IExporter
 {
