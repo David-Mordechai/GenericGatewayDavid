@@ -34,7 +34,7 @@ public static class ServicesCollectionExtension
         Assembly assembly)
     {
         const string exceptionMessage = "Exporter Implementation was not registered.";
-        if (exporterSettings == null)
+        if (exporterSettings is null)
             throw new ArgumentException(exceptionMessage);
 
         var exporterClassType = GetType<IExporter>(assembly, exporterSettings.Class);
@@ -49,7 +49,7 @@ public static class ServicesCollectionExtension
         Assembly assembly)
     {
         const string exceptionMessage = "Importer Implementation was not registered.";
-        if(importerSettings == null) 
+        if(importerSettings is null) 
             throw new ArgumentException(exceptionMessage);
         
         var importerClassType = GetType<IImporter>(assembly, importerSettings.Class);
@@ -62,7 +62,6 @@ public static class ServicesCollectionExtension
 
     private static Type? GetType<T>(Assembly assembly, string className)
     {
-
         var info = typeof(T).GetTypeInfo();
         var result =
             info.Assembly
