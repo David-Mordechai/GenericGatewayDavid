@@ -1,8 +1,6 @@
-﻿using Demo.Core.Interfaces;
+﻿using System.Reflection;
+using Demo.Core.Interfaces;
 using Demo.Core.Models;
-using Demo.Infrastructure.Exporters;
-using Demo.Infrastructure.Importers;
-using Demo.Infrastructure.Processors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Demo.Infrastructure;
@@ -11,60 +9,69 @@ public static class ServicesCollectionExtension
 {
     public static void RegisterGatewayServices(this IServiceCollection services, Settings settings)
     {
+        var assembly = Assembly.GetExecutingAssembly();
         services.AddSingleton<IGatewayProcess, GatewayProcess>();
-        RegisterImporter(services, settings.Importer);
-        RegisterExporter(services, settings.Exporter);
-        RegisterProcessors(services, settings.Processors);
+        RegisterImporter(services, settings.Importer, assembly);
+        RegisterExporter(services, settings.Exporter, assembly);
+        RegisterProcessors(services, settings.Processors, assembly);
     }
 
-    private static void RegisterProcessors(IServiceCollection services, List<string> processors)
+    private static void RegisterProcessors(IServiceCollection services, List<string> processors, Assembly assembly)
     {
-        const string exceptionMessage = "Processors Implementations was not registered.";
         if (processors.Any() is false)
-            throw new ArgumentException(exceptionMessage);
+            throw new ArgumentException("Processors Implementations was not registered.");
 
-        foreach (var processor in processors)
+        foreach (var processorType in processors.Select(processor => GetType<IProcessor>(assembly, processor)))
         {
-            switch (processor)
-            {
-                case "Telemetry2JsonProcessor":
-                    services.AddSingleton<IProcessor, Telemetry2JsonProcessor>();
-                    break;
-                default:
-                    throw new ArgumentException(exceptionMessage);
-            }
+            if (processorType is null)
+                throw new ArgumentException($"Class {processors} was not registered.");
+
+            services.AddSingleton(typeof(IProcessor), processorType);
         }
     }
 
-    private static void RegisterExporter(IServiceCollection services, Settings.ImporterExporter? exporterSettings)
+    private static void RegisterExporter(IServiceCollection services, Settings.ImporterExporter? exporterSettings,
+        Assembly assembly)
     {
         const string exceptionMessage = "Exporter Implementation was not registered.";
         if (exporterSettings == null)
             throw new ArgumentException(exceptionMessage);
 
-        switch (exporterSettings.Class)
-        {
-            case "KafkaExporter":
-                services.AddSingleton<IExporter, KafkaExporter>();
-                break;
-            default:
-                throw new ArgumentException(exceptionMessage);
-        }
+        var exporterClassType = GetType<IExporter>(assembly, exporterSettings.Class);
+
+        if (exporterClassType is null)
+            throw new ArgumentException(exceptionMessage);
+
+        services.AddSingleton(typeof(IExporter), exporterClassType);
     }
 
-    private static void RegisterImporter(IServiceCollection services, Settings.ImporterExporter? importerSettings)
+    private static void RegisterImporter(IServiceCollection services, Settings.ImporterExporter? importerSettings,
+        Assembly assembly)
     {
         const string exceptionMessage = "Importer Implementation was not registered.";
         if(importerSettings == null) 
             throw new ArgumentException(exceptionMessage);
         
-        switch (importerSettings.Class)
-        {
-            case "TelemetryImporter":
-                services.AddSingleton<IImporter, TelemetryImporter>();
-                break;
-            default:
-                throw new ArgumentException(exceptionMessage);
-        }
+        var importerClassType = GetType<IImporter>(assembly, importerSettings.Class);
+        
+        if(importerClassType is null)
+            throw new ArgumentException(exceptionMessage);
+
+        services.AddSingleton(typeof(IImporter), importerClassType);
+    }
+
+    private static Type? GetType<T>(Assembly assembly, string className)
+    {
+
+        var info = typeof(T).GetTypeInfo();
+        var result =
+            info.Assembly
+                .GetTypes()
+                .Concat(assembly.GetTypes())
+                .Where(x => info.IsAssignableFrom(x))
+                .Where(x => x.IsClass && !x.IsAbstract)
+                .FirstOrDefault(x => x.Name == className);
+
+        return result;
     }
 }
