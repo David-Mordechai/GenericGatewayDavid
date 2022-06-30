@@ -9,8 +9,9 @@ public static class ServicesCollectionExtension
 {
     public static void RegisterGatewayServices(this IServiceCollection services, Settings settings)
     {
-        var assembly = Assembly.GetExecutingAssembly();
         services.AddSingleton<IGatewayProcess, GatewayProcess>();
+        
+        var assembly = Assembly.GetExecutingAssembly();
         RegisterImporter(services, settings.Importer, assembly);
         RegisterExporter(services, settings.Exporter, assembly);
         RegisterProcessors(services, settings.Processors, assembly);
@@ -21,7 +22,7 @@ public static class ServicesCollectionExtension
         if (processors.Any() is false)
             throw new ArgumentException("Processors Implementations was not registered.");
 
-        foreach (var processorType in processors.Select(processor => GetType<IProcessor>(assembly, processor)))
+        foreach (var processorType in processors.Select(className => GetType<IProcessor>(assembly, className)))
         {
             if (processorType is null)
                 throw new ArgumentException($"Class {processors} was not registered.");

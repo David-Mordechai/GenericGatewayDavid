@@ -5,8 +5,7 @@ using Demo.Infrastructure;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        services.Configure<Settings>(context.Configuration.GetSection(nameof(Settings)));
-        var settings = context.Configuration.GetSection("Settings").Get<Settings>();
+        var settings = context.Configuration.GetSection(nameof(Settings)).Get<Settings>();
         services.AddSingleton(settings);
 
         services.RegisterGatewayServices(settings);
