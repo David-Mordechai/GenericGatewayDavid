@@ -25,7 +25,7 @@ public static class ServicesCollectionExtension
         foreach (var processorType in processors.Select(className => GetType<IProcessor>(assembly, className)))
         {
             if (processorType is null)
-                throw new ArgumentException($"Class {processors} was not registered.");
+                throw new ArgumentException($"Processor {processors} Implementation was not registered.");
 
             services.AddSingleton(typeof(IProcessor), processorType);
         }
