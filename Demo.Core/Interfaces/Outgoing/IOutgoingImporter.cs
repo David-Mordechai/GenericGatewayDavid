@@ -1,6 +1,6 @@
-﻿namespace Demo.Core.Interfaces;
+﻿namespace Demo.Core.Interfaces.Outgoing;
 
-public interface IImporter
+public interface IOutgoingImporter
 {
     void Start(CancellationToken cancellationToken);
 

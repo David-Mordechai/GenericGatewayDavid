@@ -2,9 +2,13 @@
 
 public class Settings
 {
-    public ImporterExporter? Importer { get; set; }
-    public List<string> Processors { get; set; } = new();
-    public ImporterExporter? Exporter { get; set; }
+    public ImporterExporter? OutgoingImporter { get; set; }
+    public List<string> OutgoingProcessors { get; set; } = new();
+    public ImporterExporter? OutgoingExporter { get; set; }
+
+    public ImporterExporter? IncomingImporter { get; set; }
+    public List<string> IncomingProcessors { get; set; } = new();
+    public ImporterExporter? IncomingExporter { get; set; }
 
     public class ImporterExporter
     {

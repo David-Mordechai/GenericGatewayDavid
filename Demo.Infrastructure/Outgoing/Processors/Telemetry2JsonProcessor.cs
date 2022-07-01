@@ -1,16 +1,16 @@
 ﻿using System.Text.Json;
 using AeroCodeGenProtocols;
-using Demo.Core.Interfaces;
+using Demo.Core.Interfaces.Outgoing;
 using Demo.Core.Models;
 
-namespace Demo.Infrastructure.Processors;
+namespace Demo.Infrastructure.Outgoing.Processors;
 
-internal class Telemetry2JsonProcessor : IProcessor
+internal class Telemetry2JsonProcessor : IOutgoingProcessor
 {
     public object Process(object obj)
     {
         if (obj is not GcsLightsRep gcsLightsRep) return "";
-        
+
         var payload = new
         {
             gcsLightsRep.IsNavLightsOn,

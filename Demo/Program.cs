@@ -10,7 +10,8 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.RegisterGatewayServices(settings);
 
-        services.AddHostedService<Worker>();
+        services.AddHostedService<OutgoingWorker>();
+        services.AddHostedService<IncomingWorker>();
     })
     .Build();
 

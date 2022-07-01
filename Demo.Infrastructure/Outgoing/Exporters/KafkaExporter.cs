@@ -1,17 +1,17 @@
 ﻿using Confluent.Kafka;
-using Demo.Core.Interfaces;
+using Demo.Core.Interfaces.Outgoing;
 using Demo.Core.Models;
 
-namespace Demo.Infrastructure.Exporters;
+namespace Demo.Infrastructure.Outgoing.Exporters;
 
-internal class KafkaExporter : IExporter
+internal class KafkaExporter : IOutgoingExporter
 {
     private readonly Dictionary<string, string> _type2Topic;
     private readonly IProducer<Null, string> _producer;
 
     public KafkaExporter(Settings settings)
     {
-        var exporterSettings = settings.Exporter!;
+        var exporterSettings = settings.OutgoingExporter!;
 
         var ip = exporterSettings.Ip;
         var port = exporterSettings.Port;

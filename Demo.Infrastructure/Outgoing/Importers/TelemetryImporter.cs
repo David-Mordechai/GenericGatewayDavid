@@ -1,14 +1,14 @@
 ﻿using AeroCodeGenProtocols;
-using Demo.Core.Interfaces;
+using Demo.Core.Interfaces.Outgoing;
 
-namespace Demo.Infrastructure.Importers;
+namespace Demo.Infrastructure.Outgoing.Importers;
 
-internal class TelemetryImporter : IImporter
+internal class TelemetryImporter : IOutgoingImporter
 {
     public void Start(CancellationToken cancellationToken)
     {
         // Simulates UAV telemetry report
-        _ = Task.Factory.StartNew(() =>
+        _ = Task.Factory.StartNew(async () =>
         {
             var random = new Random();
 
@@ -19,7 +19,7 @@ internal class TelemetryImporter : IImporter
 
                 DataReady?.Invoke(this, gcsLightsRep);
 
-                Task.Delay(1000, cancellationToken);
+                await Task.Delay(3000, cancellationToken);
             }
         }, cancellationToken);
     }
