@@ -1,6 +1,5 @@
 using Demo.Core.Interfaces;
 using Demo.Core.Models;
-using Demo.Core;
 
 namespace Demo;
 
@@ -21,28 +20,26 @@ public class Worker : BackgroundService
     {
         _logger.LogInformation("Starting Gateway processes.");
         var gatewayProcesses = new List<Task>();
-        foreach (var settingsImporterExporterGroup in _settings.ImporterExporterGroups)
+        foreach (var group in _settings.ImporterExporterGroups.Where(x => x.IsActive))
         {
-            if(settingsImporterExporterGroup.IsActive is false) continue;
-            
             var task = new Task(() =>
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
-                var importerInterfaceName = settingsImporterExporterGroup.Importer!.Interface;
+                var importerInterfaceName = group.Importer!.Interface;
                 var importerType = _settings.InterfacesWithImplementationsDictionary[importerInterfaceName].InterfaceType;
                 if (scope.ServiceProvider.GetService(importerType) is not IImporter importer)
                     throw new ArgumentException($"{importerInterfaceName} was not resolved");
-                importer.Init(settingsImporterExporterGroup.Importer);
+                importer.Init(group.Importer);
 
-                var exporterInterfaceName = settingsImporterExporterGroup.Exporter!.Interface;
+                var exporterInterfaceName = group.Exporter!.Interface;
                 var exporterType = _settings.InterfacesWithImplementationsDictionary[exporterInterfaceName].InterfaceType;
                 if (scope.ServiceProvider.GetService(exporterType) is not IExporter exporter)
                     throw new ArgumentException($"{exporterInterfaceName} was not resolved");
-                exporter.Init(settingsImporterExporterGroup.Exporter);
+                exporter.Init(group.Exporter);
 
                 IList<IProcessor> processors = new List<IProcessor>();
-                foreach (var processorInterfaceName in settingsImporterExporterGroup.Processors)
+                foreach (var processorInterfaceName in group.Processors)
                 {
                     var processorType = _settings.InterfacesWithImplementationsDictionary[processorInterfaceName].InterfaceType;
 

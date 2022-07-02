@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Demo.Infrastructure.Importers;
 
-public interface ITelemetryKafkaImporter
-{
-}
+public interface ITelemetryKafkaImporter { }
 
 internal class TelemetryKafkaImporter : ITelemetryKafkaImporter, IImporter, IDisposable
 {
