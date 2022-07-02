@@ -1,34 +1,43 @@
 ﻿using AeroCodeGenProtocols;
 using Confluent.Kafka;
-using Demo.Core.Interfaces.Incoming;
+using Demo.Core.Interfaces;
 using Demo.Core.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Demo.Infrastructure.Incoming.Importers;
+namespace Demo.Infrastructure.Importers;
 
-internal class KafkaImporter : IIncomingImporter, IDisposable
+public interface ITelemetryKafkaImporter
 {
-    private readonly ILogger<KafkaImporter> _logger;
-    private readonly Dictionary<string, string> _type2Topic;
-    private readonly IConsumer<Null, string> _consumer;
+}
+
+internal class TelemetryKafkaImporter : ITelemetryKafkaImporter, IImporter, IDisposable
+{
+    private readonly ILogger<TelemetryKafkaImporter> _logger;
+    private Dictionary<string, string> _type2Topic = new();
+    private IConsumer<Null, string>? _consumer;
+    private ImporterExporter? _importerSettings;
 
     public event EventHandler<object>? DataReady;
 
-    public KafkaImporter(ILogger<KafkaImporter> logger, Settings settings)
+    public TelemetryKafkaImporter(ILogger<TelemetryKafkaImporter> logger)
     {
         _logger = logger;
-        var exporterSettings = settings.OutgoingExporter!;
+    }
 
-        var ip = exporterSettings.Ip;
-        var port = exporterSettings.Port;
-        var clientId = exporterSettings.ClientId;
-        _type2Topic = exporterSettings.TypeTopicMap;
+    public void Init(ImporterExporter importerSettings)
+    {
+        _importerSettings = importerSettings;
+        
+        var ip = _importerSettings.Ip;
+        var port = _importerSettings.Port;
+        var clientId = _importerSettings.ClientId;
+        _type2Topic = _importerSettings.TypeTopicMap;
 
         var config = new ConsumerConfig
         {
             BootstrapServers = $"{ip}:{port}",
             ClientId = clientId,
-            GroupId = exporterSettings.ClientType
+            GroupId = _importerSettings.ClientType
         };
 
         _consumer = new ConsumerBuilder<Null, string>(config).Build();
@@ -37,6 +46,8 @@ internal class KafkaImporter : IIncomingImporter, IDisposable
     public void Start(CancellationToken cancellationToken)
     {
         var topic = GetTopicByType(nameof(GcsLightsRep));
+
+        if (_consumer is null) return;
 
         _consumer.Subscribe(topic);
         while (cancellationToken.IsCancellationRequested is false)
@@ -73,6 +84,6 @@ internal class KafkaImporter : IIncomingImporter, IDisposable
 
     public void Dispose()
     {
-        _consumer.Dispose();
+        _consumer?.Dispose();
     }
 }

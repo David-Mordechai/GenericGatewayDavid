@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
-using Demo.Core.Interfaces.Incoming;
-using Demo.Core.Interfaces.Outgoing;
+using Demo.Core;
+using Demo.Core.Interfaces;
 using Demo.Core.Models;
-using Demo.Infrastructure.Incoming;
-using Demo.Infrastructure.Outgoing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Demo.Infrastructure;
@@ -12,74 +10,92 @@ public static class ServicesCollectionExtension
 {
     public static void RegisterGatewayServices(this IServiceCollection services, Settings settings)
     {
-        services.AddSingleton<IOutgoingGatewayProcess, OutgoingGatewayProcess>();
-        services.AddSingleton<IIncomingGatewayProcess, IncomingGatewayProcess>();
+        settings.InterfacesWithImplementationsDictionary = BuildDictionaryOfInterfacesWithImplementations();
         
-        var assembly = Assembly.GetExecutingAssembly();
-        
-        RegisterImporter<IOutgoingImporter>(services, settings.OutgoingImporter, assembly);
-        RegisterExporter<IOutgoingExporter>(services, settings.OutgoingExporter, assembly);
-        RegisterProcessors<IOutgoingProcessor>(services, settings.OutgoingProcessors, assembly);
+        services.AddScoped<IGatewayProcess, GatewayProcess>();
 
-        RegisterImporter<IIncomingImporter>(services, settings.IncomingImporter, assembly);
-        RegisterExporter<IIncomingExporter>(services, settings.IncomingExporter, assembly);
-        RegisterProcessors<IIncomingProcessor>(services, settings.IncomingProcessors, assembly);
-    }
-
-    private static void RegisterProcessors<T>(IServiceCollection services, List<string> processors, Assembly assembly)
-    {
-        if (processors.Any() is false)
-            throw new ArgumentException("Processors Implementations was not registered.");
-
-        foreach (var processorType in processors.Select(className => GetType<T>(assembly, className)))
+        foreach (var group in settings.ImporterExporterGroups)
         {
-            if (processorType is null)
-                throw new ArgumentException($"Processor {processors} Implementation was not registered.");
-
-            services.AddSingleton(typeof(T), processorType);
+            RegisterImporter(services, group.Importer, settings);
+            RegisterExporter(services, group.Exporter, settings);
+            RegisterProcessors(services, group.Processors, settings);
         }
     }
 
-    private static void RegisterExporter<T>(IServiceCollection services, Settings.ImporterExporter? exporterSettings,
-        Assembly assembly)
+    private static void RegisterProcessors(IServiceCollection services, List<string>? processors, Settings settings)
     {
-        const string exceptionMessage = "Exporter Implementation was not registered.";
+        if (processors is null || processors.Any() is false)
+            throw new ArgumentException("Processors Implementations was not registered.");
+
+        foreach (var processor in processors)
+        {
+            if (processor is null)
+                throw new ArgumentException($"Processor {processors} Implementation was not registered.");
+
+            Register(services, settings, processor);
+        }
+    }
+
+    private static void RegisterExporter(IServiceCollection services, ImporterExporter? exporterSettings, Settings settings)
+    {
+        const string exceptionMessage = "IExporter Implementation was not registered.";
         if (exporterSettings is null)
             throw new ArgumentException(exceptionMessage);
 
-        var exporterClassType = GetType<T>(assembly, exporterSettings.Class);
-
-        if (exporterClassType is null)
-            throw new ArgumentException(exceptionMessage);
-
-        services.AddSingleton(typeof(T), exporterClassType);
+        Register(services, settings, exporterSettings.Interface);
     }
-
-    private static void RegisterImporter<T>(IServiceCollection services, Settings.ImporterExporter? importerSettings,
-        Assembly assembly)
+    
+    private static void RegisterImporter(IServiceCollection services, ImporterExporter? importerSettings, Settings settings)
     {
         const string exceptionMessage = "Importer Implementation was not registered.";
         if(importerSettings is null) 
             throw new ArgumentException(exceptionMessage);
-        
-        var importerClassType = GetType<T>(assembly, importerSettings.Class);
-        
-        if(importerClassType is null)
-            throw new ArgumentException(exceptionMessage);
 
-        services.AddSingleton(typeof(T), importerClassType);
+        Register(services, settings, importerSettings.Interface);
     }
 
-    private static Type? GetType<T>(Assembly assembly, string className)
+
+    private static void Register(IServiceCollection services, Settings settings, string processor)
     {
-        var info = typeof(T).GetTypeInfo();
+        var notExist = settings.InterfacesWithImplementationsDictionary.ContainsKey(processor) is false;
+        if (notExist)
+            throw new ArgumentException($"{processor} interface or implementation class not found");
+
+        var (@interface, @class) = settings.InterfacesWithImplementationsDictionary[processor];
+
+        services.AddScoped(@interface, @class);
+    }
+
+    private static IDictionary<string, (Type InterfaceType, Type ClassType)> 
+        BuildDictionaryOfInterfacesWithImplementations()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var dictionary = new Dictionary<string, (Type InterfaceType, Type ClassType)>();
+        var interfaces = assembly.GetTypes().Where(x => x.IsInterface).ToList();
+        foreach (var @interface in interfaces)
+        {
+            var @class = GetClassByInterface(assembly, @interface);
+            
+            if(@class is null)
+                throw new ArgumentException($"{@interface.Name} has no implementation class");
+
+            if (dictionary.ContainsKey(@interface.Name))
+                throw new ArgumentException($"{@interface.Name} has more than one implementation class");
+
+            dictionary.Add(@interface.Name,(@interface, @class));
+        }
+        return dictionary;
+    }
+
+    private static Type? GetClassByInterface(Assembly assembly, Type @interface)
+    {
+        var info = @interface.GetTypeInfo();
         var result =
             info.Assembly
                 .GetTypes()
                 .Concat(assembly.GetTypes())
                 .Where(x => info.IsAssignableFrom(x))
-                .Where(x => x.IsClass && !x.IsAbstract)
-                .FirstOrDefault(x => x.Name == className);
+                .FirstOrDefault(x => x.IsClass && !x.IsAbstract);
 
         return result;
     }

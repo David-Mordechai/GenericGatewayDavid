@@ -1,11 +1,13 @@
 ﻿using System.Text.Json;
 using AeroCodeGenProtocols;
-using Demo.Core.Interfaces.Outgoing;
+using Demo.Core.Interfaces;
 using Demo.Core.Models;
 
-namespace Demo.Infrastructure.Outgoing.Processors;
+namespace Demo.Infrastructure.Processors;
 
-internal class Telemetry2JsonProcessor : IOutgoingProcessor
+public interface ITelemetry2JsonProcessor { }
+
+internal class Telemetry2JsonProcessor : ITelemetry2JsonProcessor, IProcessor
 {
     public object Process(object obj)
     {

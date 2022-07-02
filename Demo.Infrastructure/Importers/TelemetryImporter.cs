@@ -1,10 +1,17 @@
 ﻿using AeroCodeGenProtocols;
-using Demo.Core.Interfaces.Outgoing;
+using Demo.Core.Interfaces;
+using Demo.Core.Models;
 
-namespace Demo.Infrastructure.Outgoing.Importers;
+namespace Demo.Infrastructure.Importers;
 
-internal class TelemetryImporter : IOutgoingImporter
+public interface ITelemetryImporter { }
+
+internal class TelemetryImporter : ITelemetryImporter, IImporter
 {
+    public void Init(ImporterExporter importerSettings)
+    {
+    }
+
     public void Start(CancellationToken cancellationToken)
     {
         // Simulates UAV telemetry report

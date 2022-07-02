@@ -1,18 +1,18 @@
 ﻿using Confluent.Kafka;
-using Demo.Core.Interfaces.Outgoing;
+using Demo.Core.Interfaces;
 using Demo.Core.Models;
 
-namespace Demo.Infrastructure.Outgoing.Exporters;
+namespace Demo.Infrastructure.Exporters;
 
-internal class KafkaExporter : IOutgoingExporter
+public interface ITelemetryKafkaExporter { }
+
+internal class TelemetryKafkaExporter : ITelemetryKafkaExporter, IExporter
 {
-    private readonly Dictionary<string, string> _type2Topic;
-    private readonly IProducer<Null, string> _producer;
+    private Dictionary<string, string> _type2Topic = new();
+    private IProducer<Null, string>? _producer;
 
-    public KafkaExporter(Settings settings)
+    public void Init(ImporterExporter exporterSettings)
     {
-        var exporterSettings = settings.OutgoingExporter!;
-
         var ip = exporterSettings.Ip;
         var port = exporterSettings.Port;
         var clientId = exporterSettings.ClientId;
@@ -34,6 +34,8 @@ internal class KafkaExporter : IOutgoingExporter
 
     private async void Export(Message message)
     {
+        if (_producer is null) return;
+
         var topic = GetTopicByType(message.Type);
         var value = GetValueByPayload(message.PayLoad);
 
