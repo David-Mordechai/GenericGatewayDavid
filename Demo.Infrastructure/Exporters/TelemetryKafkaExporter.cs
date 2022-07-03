@@ -4,9 +4,7 @@ using Demo.Core.Models;
 
 namespace Demo.Infrastructure.Exporters;
 
-public interface ITelemetryKafkaExporter { }
-
-internal class TelemetryKafkaExporter : ITelemetryKafkaExporter, IExporter
+internal class TelemetryKafkaExporter : IExporter
 {
     private Dictionary<string, string> _type2Topic = new();
     private IProducer<Null, string>? _producer;

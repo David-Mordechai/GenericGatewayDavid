@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Demo.Infrastructure.Importers;
 
-public interface ITelemetryKafkaImporter { }
-
-internal class TelemetryKafkaImporter : ITelemetryKafkaImporter, IImporter, IDisposable
+internal class TelemetryKafkaImporter : IImporter, IDisposable
 {
     private readonly ILogger<TelemetryKafkaImporter> _logger;
     private Dictionary<string, string> _type2Topic = new();

@@ -4,9 +4,7 @@ using Demo.Core.Models;
 
 namespace Demo.Infrastructure.Importers;
 
-public interface ITelemetryImporter { }
-
-internal class TelemetryImporter : ITelemetryImporter, IImporter
+internal class TelemetryImporter : IImporter
 {
     public void Init(ImporterExporter importerSettings)
     {

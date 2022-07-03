@@ -26,25 +26,25 @@ public class Worker : BackgroundService
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
-                var importerInterfaceName = group.Importer!.Interface;
-                var importerType = _settings.InterfacesWithImplementationsDictionary[importerInterfaceName].InterfaceType;
+                var importerClassName = group.Importer!.Class;
+                var importerType = _settings.ClassesTypesDictionary[importerClassName];
                 if (scope.ServiceProvider.GetService(importerType) is not IImporter importer)
-                    throw new ArgumentException($"{importerInterfaceName} was not resolved");
+                    throw new ArgumentException($"{importerClassName} was not resolved");
                 importer.Init(group.Importer);
 
-                var exporterInterfaceName = group.Exporter!.Interface;
-                var exporterType = _settings.InterfacesWithImplementationsDictionary[exporterInterfaceName].InterfaceType;
+                var exporterClassName = group.Exporter!.Class;
+                var exporterType = _settings.ClassesTypesDictionary[exporterClassName];
                 if (scope.ServiceProvider.GetService(exporterType) is not IExporter exporter)
-                    throw new ArgumentException($"{exporterInterfaceName} was not resolved");
+                    throw new ArgumentException($"{exporterClassName} was not resolved");
                 exporter.Init(group.Exporter);
 
                 IList<IProcessor> processors = new List<IProcessor>();
-                foreach (var processorInterfaceName in group.Processors)
+                foreach (var processorClassName in group.Processors)
                 {
-                    var processorType = _settings.InterfacesWithImplementationsDictionary[processorInterfaceName].InterfaceType;
+                    var processorType = _settings.ClassesTypesDictionary[processorClassName];
 
                     if (scope.ServiceProvider.GetService(processorType) is not IProcessor processor)
-                        throw new ArgumentException($"{processorInterfaceName} was not resolved");
+                        throw new ArgumentException($"{processorClassName} was not resolved");
 
                     processors.Add(processor);
                 }

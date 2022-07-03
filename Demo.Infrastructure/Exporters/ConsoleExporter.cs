@@ -4,9 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Demo.Infrastructure.Exporters;
 
-public interface ILoggerExporter { }
-
-internal class LoggerExporter : ILoggerExporter, IExporter
+internal class LoggerExporter : IExporter
 {
     private readonly ILogger<LoggerExporter> _logger;
 

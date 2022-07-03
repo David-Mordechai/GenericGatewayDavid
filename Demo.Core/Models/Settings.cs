@@ -4,9 +4,7 @@ public class Settings
 {
     public List<ImporterExporterGroup> ImporterExporterGroups { get; set; } = new();
 
-    public IDictionary<string, (Type InterfaceType, Type ClassType)>
-        InterfacesWithImplementationsDictionary { get; set; } =
-        new Dictionary<string, (Type InterfaceType, Type ClassType)>();
+    public Dictionary<string, Type> ClassesTypesDictionary { get; set; } = new();
 }
 
 public class ImporterExporterGroup
@@ -20,7 +18,7 @@ public class ImporterExporterGroup
 
 public class ImporterExporter
 {
-    public string Interface { get; set; } = string.Empty;
+    public string Class { get; set; } = string.Empty;
     public string Ip { get; set; } = string.Empty;
     public string Nic { get; set; } = string.Empty;
     public string Port { get; set; } = string.Empty;

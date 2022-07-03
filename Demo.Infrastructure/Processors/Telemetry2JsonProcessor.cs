@@ -5,9 +5,7 @@ using Demo.Core.Models;
 
 namespace Demo.Infrastructure.Processors;
 
-public interface ITelemetry2JsonProcessor { }
-
-internal class Telemetry2JsonProcessor : ITelemetry2JsonProcessor, IProcessor
+internal class Telemetry2JsonProcessor : IProcessor
 {
     public object Process(object obj)
     {

@@ -2,9 +2,7 @@
 
 namespace Demo.Infrastructure.Processors;
 
-public interface IJson2TelemetryProcessor { }
-
-internal class Json2TelemetryProcessor : IJson2TelemetryProcessor, IProcessor
+internal class Json2TelemetryProcessor : IProcessor
 {
     public object Process(object obj)
     {
