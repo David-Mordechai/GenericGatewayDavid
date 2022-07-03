@@ -54,7 +54,6 @@ public static class ServicesCollectionExtension
         Register(services, settings, importerSettings.Interface);
     }
 
-
     private static void Register(IServiceCollection services, Settings settings, string processor)
     {
         var notExist = settings.InterfacesWithImplementationsDictionary.ContainsKey(processor) is false;
