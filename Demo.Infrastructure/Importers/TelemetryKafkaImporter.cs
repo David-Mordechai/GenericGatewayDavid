@@ -1,75 +1,36 @@
-﻿using AeroCodeGenProtocols;
-using Confluent.Kafka;
+﻿using Avro;
 using Demo.Core.Interfaces;
 using Demo.Core.Models;
-using Microsoft.Extensions.Logging;
+using Demo.Infrastructure.Connectivity.MessageBrokers;
 
 namespace Demo.Infrastructure.Importers;
 
 internal class TelemetryKafkaImporter : IImporter, IDisposable
 {
-    private readonly ILogger<TelemetryKafkaImporter> _logger;
+    private readonly ISubscriber<GcsLightsAvro> _subscriber;
     private Dictionary<string, string> _type2Topic = new();
-    private IConsumer<Null, string>? _consumer;
-    private ImporterExporter? _importerSettings;
 
     public event EventHandler<object>? DataReady;
 
-    public TelemetryKafkaImporter(ILogger<TelemetryKafkaImporter> logger)
+    public TelemetryKafkaImporter(ISubscriber<GcsLightsAvro> subscriber)
     {
-        _logger = logger;
+        _subscriber = subscriber;
     }
 
     public void Init(ImporterExporter importerSettings)
     {
-        _importerSettings = importerSettings;
-        
-        var ip = _importerSettings.Ip;
-        var port = _importerSettings.Port;
-        var clientId = _importerSettings.ClientId;
-        _type2Topic = _importerSettings.TypeTopicMap;
-
-        var config = new ConsumerConfig
-        {
-            BootstrapServers = $"{ip}:{port}",
-            ClientId = clientId,
-            GroupId = _importerSettings.ClientType
-        };
-
-        _consumer = new ConsumerBuilder<Null, string>(config).Build();
+        _type2Topic = importerSettings.TypeTopicMap;
     }
 
     public void Start(CancellationToken cancellationToken)
     {
-        var topic = GetTopicByType(nameof(GcsLightsRep));
+        var topic = GetTopicByType(nameof(GcsLightsAvro));
 
-        if (_consumer is null) return;
-
-        _consumer.Subscribe(topic);
-        while (cancellationToken.IsCancellationRequested is false)
+        _subscriber.Subscribe(topic, message =>
         {
-            try
-            {
-                var consumeResult = _consumer.Consume(cancellationToken);
-                DataReady?.Invoke(this, consumeResult.Message.Value);
-            }
-            catch (Exception ex)
-            {
-                switch (ex)
-                {
-                    case OperationCanceledException:
-                        // Ensure the consumer leaves the group cleanly and final offsets are committed.
-                        _consumer.Close();
-                        break;
-                    case ConsumeException exception:
-                        _logger.LogError(ex, "Error message {errorMessage}", exception.Error.Reason);
-                        break;
-                    default:
-                        _logger.LogError(ex, "Error message {errorMessage}", ex.Message);
-                        break;
-                }
-            }
-        }
+            DataReady?.Invoke(this, message);
+        }, cancellationToken);
+        
     }
 
     private string GetTopicByType(string type)
@@ -80,6 +41,6 @@ internal class TelemetryKafkaImporter : IImporter, IDisposable
 
     public void Dispose()
     {
-        _consumer?.Dispose();
+        _subscriber?.Dispose();
     }
 }

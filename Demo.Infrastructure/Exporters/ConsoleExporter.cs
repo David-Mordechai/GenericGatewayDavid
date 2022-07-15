@@ -1,4 +1,5 @@
-﻿using Demo.Core.Interfaces;
+﻿using System.Text.Json;
+using Demo.Core.Interfaces;
 using Demo.Core.Models;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +21,7 @@ internal class LoggerExporter : IExporter
 
     public void Export(object export)
     {
-        _logger.LogInformation((string)export);
+        var jsonResult = JsonSerializer.Serialize(export);
+        _logger.LogInformation(jsonResult);
     }
 }

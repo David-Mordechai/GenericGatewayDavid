@@ -2,6 +2,8 @@
 using Demo.Core;
 using Demo.Core.Interfaces;
 using Demo.Core.Models;
+using Demo.Infrastructure.Connectivity.MessageBrokers;
+using Demo.Infrastructure.Connectivity.MessageBrokers.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Demo.Infrastructure;
@@ -14,6 +16,8 @@ public static class ServicesCollectionExtension
         var classesTypesDictionary = new Dictionary<string, Type>();
         
         services.AddScoped<IGatewayProcess, GatewayProcess>();
+        services.AddSingleton(typeof(IPublisher<>), typeof(KafkaPublisherAdapter<>));
+        services.AddSingleton(typeof(ISubscriber<>), typeof(KafkaConsumerAdapter<>));
 
         foreach (var group in settings.ImporterExporterGroups)
         {

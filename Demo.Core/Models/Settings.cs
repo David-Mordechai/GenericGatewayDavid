@@ -5,6 +5,13 @@ public class Settings
     public List<ImporterExporterGroup> ImporterExporterGroups { get; set; } = new();
 
     public Dictionary<string, Type> ClassesTypesDictionary { get; set; } = new();
+
+    public string BootstrapServers { get; set; } = string.Empty; 
+    public string SchemaRegistryUrl { get; set; } = string.Empty; 
+}
+
+public class KafkaSettings
+{
 }
 
 public class ImporterExporterGroup

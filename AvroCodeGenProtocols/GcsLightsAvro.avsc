@@ -1,0 +1,15 @@
+﻿{
+  "fields": [
+    {
+      "name": "IsNavLightsOn",
+      "type": "boolean"
+    },
+    {
+      "name": "IsStrobLightsOn",
+      "type": "boolean"
+    }
+  ],
+  "name": "GcsLightsAvro",
+  "namespace": "Avro",
+  "type": "record"
+}
